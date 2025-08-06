@@ -6,9 +6,12 @@
 // The sum program demonstrates a variadic function.
 package main
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
-//!+
+// !+
 func sum(vals ...int) int {
 	total := 0
 	for _, val := range vals {
@@ -18,6 +21,19 @@ func sum(vals ...int) int {
 }
 
 //!-
+
+func max(vals ...int) (int, error) {
+	if len(vals) == 0 {
+		return 0, errors.New("no values found")
+	}
+	var m int
+	for _, val := range vals {
+		if m < val {
+			m = val
+		}
+	}
+	return m, nil
+}
 
 func main() {
 	//!+main
@@ -29,5 +45,11 @@ func main() {
 	//!+slice
 	values := []int{1, 2, 3, 4}
 	fmt.Println(sum(values...)) // "10"
+	m, err := max(values...)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(m)
 	//!-slice
 }

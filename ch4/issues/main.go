@@ -11,20 +11,49 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"gopl.io/ch4/github"
 )
 
-//!+
+// !+
 func main() {
 	result, err := github.SearchIssues(os.Args[1:])
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("%d issues:\n", result.TotalCount)
+	fmt.Printf("%d issues:\n", len(result.Items))
+	monthOld := []github.Issue{}
+	yearOld := []github.Issue{}
+	veryOld := []github.Issue{}
+	now := time.Now()
+	monthAgo := now.Add(-time.Hour * 24 * 30)
+	yearAgo := now.Add(-time.Hour * 24 * 365)
 	for _, item := range result.Items {
-		fmt.Printf("#%-5d %9.9s %.55s\n",
-			item.Number, item.User.Login, item.Title)
+		switch {
+		case item.CreatedAt.Compare(monthAgo) >= 0:
+			monthOld = append(monthOld, *item)
+		case item.CreatedAt.Compare(yearAgo) >= 0:
+			yearOld = append(yearOld, *item)
+		default:
+			veryOld = append(veryOld, *item)
+		}
+
+	}
+	fmt.Printf("%d monthOld issues:\n", len(monthOld))
+	for _, item := range monthOld {
+		fmt.Printf("#%-5d %9.9s %.55s %s\n",
+			item.Number, item.User.Login, item.Title, item.CreatedAt.Format(time.RFC3339))
+	}
+	fmt.Printf("%d yearOld issues:\n", len(yearOld))
+	for _, item := range yearOld {
+		fmt.Printf("#%-5d %9.9s %.55s %s\n",
+			item.Number, item.User.Login, item.Title, item.CreatedAt.Format(time.RFC3339))
+	}
+	fmt.Printf("%d veryOld issues:\n", len(veryOld))
+	for _, item := range veryOld {
+		fmt.Printf("#%-5d %9.9s %.55s %s\n",
+			item.Number, item.User.Login, item.Title, item.CreatedAt.Format(time.RFC3339))
 	}
 }
 
