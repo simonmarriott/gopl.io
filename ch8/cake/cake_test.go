@@ -10,13 +10,17 @@ import (
 	"gopl.io/ch8/cake"
 )
 
-var defaults = cake.Shop{
-	Verbose:      testing.Verbose(),
-	Cakes:        20,
-	BakeTime:     10 * time.Millisecond,
-	NumIcers:     1,
-	IceTime:      10 * time.Millisecond,
-	InscribeTime: 10 * time.Millisecond,
+var defaults cake.Shop
+
+func Init() {
+	defaults = cake.Shop{
+		Verbose:      testing.Verbose(),
+		Cakes:        20,
+		BakeTime:     10 * time.Millisecond,
+		NumIcers:     1,
+		IceTime:      10 * time.Millisecond,
+		InscribeTime: 10 * time.Millisecond,
+	}
 }
 
 func Benchmark(b *testing.B) {

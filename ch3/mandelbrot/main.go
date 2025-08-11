@@ -35,7 +35,7 @@ func main() {
 func plot(out io.Writer) {
 	const (
 		xmin, ymin, xmax, ymax = -2, -2, +2, +2
-		width, height          = 1024, 1024
+		width, height          = 4096, 4096
 	)
 
 	img := image.NewRGBA(image.Rect(0, 0, width, height))
@@ -43,7 +43,7 @@ func plot(out io.Writer) {
 		y := float64(py)/height*(ymax-ymin) + ymin
 		for px := 0; px < width; px++ {
 			x := float64(px)/width*(xmax-xmin) + xmin
-			img.Set(px, py, superSample(x, y))
+			img.Set(px, py, calcPixelColor(x, y))
 		}
 	}
 	png.Encode(out, img) // NOTE: ignoring errors
@@ -90,11 +90,11 @@ func mandelbrot(z complex128) color.RGBA {
 	for n := uint8(0); n < iterations; n++ {
 		v = v*v + z
 		if cmplx.Abs(v) > 2 {
-			return color.RGBA{255 - contrast*n, 0, 0, 0xff}
+			return color.RGBA{255 - contrast*n, 255 - contrast*n, 255 - contrast*n, 0xff}
 		}
 	}
 	return color.RGBA{
-		R: 0xff,
+		R: 0,
 		G: 0,
 		B: 0,
 		A: 0xff,

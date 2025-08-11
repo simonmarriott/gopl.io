@@ -26,12 +26,17 @@ func echo(c net.Conn, shout string, delay time.Duration, wg *sync.WaitGroup) {
 }
 
 // !+
-func handleConn(c net.Conn) {
+func handleConn(c net.Conn, shouts chan int) {
 	input := bufio.NewScanner(c)
 	var wg sync.WaitGroup
+
 	for input.Scan() {
+
 		wg.Add(1)
 		go echo(c, input.Text(), 2*time.Second, &wg)
+		//if input.Text() != "" {
+		shouts <- 1
+		//}
 	}
 	wg.Wait()
 	// NOTE: ignoring potential errors from input.Err()
@@ -50,12 +55,26 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	for {
 		conn, err := l.Accept()
 		if err != nil {
 			log.Print(err) // e.g., connection aborted
 			continue
 		}
-		go handleConn(conn)
+		shouts := make(chan int)
+		go handleConn(conn, shouts)
+	Timer:
+		for {
+			select {
+			case <-time.After(10 * time.Second):
+				err := conn.Close()
+				if err != nil {
+					return
+				}
+				break Timer
+			case <-shouts:
+			}
+		}
 	}
 }
